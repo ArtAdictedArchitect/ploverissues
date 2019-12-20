@@ -1,22 +1,39 @@
-# MCU name
-MCU = atmega32u4
+#----------------------------------------------------------------------------
+# make gergo:germ:dfu
+# Make sure you have dfu-programmer installed!
+#----------------------------------------------------------------------------
+# Firmware options
+BALLER = no 			# Enable to ball out
+BALLSTEP = 20  			# Multiple in px to move, multiplied by layer number
+SCROLLSTEP = 1 			# Lines to scroll with ball
+                  		# Mouse keys(+4700), needed for baller
+STENO_ENABLE = yes
+MOUSEKEY_ENABLE = no      # might need to change this to yes if theres an issue
 
-# Bootloader selection
-#   Teensy       halfkay
-#   Pro Micro    caterina
-#   Atmel DFU    atmel-dfu
-#   LUFA DFU     lufa-dfu
-#   QMK DFU      qmk-dfu
-#   ATmega32A    bootloadHID
-#   ATmega328P   USBasp
-BOOTLOADER = atmel-dfu
+#Debug options
+VERBOSE 		 = yes
+DEBUG_MATRIX_SCAN_RATE   = no
+DEBUG_BALLER 		 = no
+DEBUG_MATRIX		 = yes
 
-CUSTOM_MATRIX 		= yes
-EXTRAKEY_ENABLE		= yes
-CONSOLE_ENABLE  	= yes
-COMMAND_ENABLE		= yes
-BOOTMAGIC_ENABLE = lite
-
-DEBOUNCE_TYPE  = eager_pr
-SRC += matrix.c
-QUANTUM_LIB_SRC += i2c_master.c
+# A bunch of stuff that you shouldn't touch unless you
+# know what you're doing.
+#
+# No touchy, capiche?
+SRC += matrix.c i2c_master.c
+ifneq ($(strip $(BALLSTEP)),)
+    OPT_DEFS += -DTRKSTEP=$(strip $(BALLSTEP))
+endif
+ifneq ($(strip $(SCROLLSTEP)),)
+    OPT_DEFS += -DSCROLLSTEP=$(strip $(SCROLLSTEP))
+endif
+ifeq ($(strip $(BALLER)), yes)
+	POINTING_DEVICE_ENABLE	= yes
+    OPT_DEFS += -DBALLER
+endif
+ifeq ($(strip $(DEBUG_BALLER)), yes)
+    OPT_DEFS += -DDEBUG_BALLER
+endif
+ifeq ($(strip $(DEBUG_MATRIX)), yes)
+    OPT_DEFS += -DDEBUG_MATRIX
+endif
